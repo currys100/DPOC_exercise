@@ -31,4 +31,41 @@ function [ J_opt, u_opt_ind ] = ValueIteration( P, G )
 
 % put your code here
 
+iteration = 1;
+[m,n] = size(G);
+J_old = zeros(m);
+
+while iteration < 1000
+    J = ones(m,1)*inf;
+    for i = 1:m
+        for u = 1:n
+            sum = 0;
+            for j = 1:m
+                sum = sum + P(i,j,u)*J_old(j);
+            end
+            J(i) = min(J(i), G(i,u) + sum);
+        end
+    end
+    J_old = J;
+    iteration = iteration+1
+    J(1)
+end
+
+u_opt_ind = zeros(m,1);
+J = ones(m,1)*inf;
+for i = 1:m
+    for u = 1:n
+        sum = 0;
+        for j = 1:m
+            sum = sum + P(i,j,u)*J_old(j);
+        end
+        if ( G(i,u) + sum) < J(i)
+           u_opt_ind(i) = u;
+        end
+        J(i) = min(J(i), G(i,u) + sum);
+    end
+end
+
+J_opt = J;
+
 end
