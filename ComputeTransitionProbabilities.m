@@ -88,24 +88,37 @@ for i = 1 : length(stateSpace)
     
     
     % determine if adjacent squares are in the stateSpace. 
+    
+    %n_ind is the next state if you choose north
     [move_north, n_ind] = ismember([k(1), k(2)+1], stateSpace, 'rows');
     if move_north   
         pij(i, n_ind, 1) = 1 ;
+    else
+        n_ind = i;
+        pij(i,n_ind,1) = 1 ;
     end 
+    
+    
     
     [move_south, s_ind] = ismember([k(1), k(2)-1], stateSpace, 'rows');
     if move_south  
         pij(i, s_ind, 3) = 1 ;
+    else
+        pij(i,i,3) = 1 ;
     end
     
     [move_east, e_ind] = ismember([k(1)+1, k(2)], stateSpace, 'rows');
     if move_east  
         pij(i, e_ind, 4) = 1 ;
+    else
+        pij(i,i,4) = 1 ;
     end
     
     [move_west, w_ind] = ismember([k(1)-1, k(2)], stateSpace, 'rows');
     if move_west
         pij(i, w_ind, 2) = 1 ;
+    else
+        pij(i,i,2) = 1 ;
     end
     
     pij(i, i, 5) = 1; % if we take a picture, we stay at the same state i. 
@@ -130,13 +143,93 @@ returns a 4x2 matrix
 
 end
 
-function p_caught = probabilityCaught(cameras) 
+function p_caught = probabilityCaught(cameras, stateSpace, current_state) 
 %{
-
-
+    given the cameras, and the stateSpace (ie spaces cameras can see
+    through) calculate the probability of being caught in one timestep in a
+    given state
 %}
 
-p_caught = [] ;
+P_nc = 1;
+
+current_coordinates = stateSpace(current_state,:);
+
+% walk north until wall, check if a camera
+walking_state = current_coordinates
+open = 1;
+%while we can still walk...
+while open
+   % walking north
+   walking_state = walking_state + [0,1];
+   % check if we've hit a wall
+   [open, c] = ismember(walking_state, stateSpace, 'rows');
+end
+
+[a, camera_row] = ismember(walking_state, cameras(:,1:2), 'rows');
+
+if a
+    cameracatch = cameras(camera_row, 3)/abs(current_coordinates(2) - walking_state(2));
+    P_nc = P_nc * (1 - cameracatch);
+end
+
+% walk west until wall, check if a camera
+walking_state = current_coordinates
+open = 1;
+%while we can still walk...
+while open
+   % walking west
+   walking_state = walking_state + [-1,0];
+   % check if we've hit a wall
+   [open, c] = ismember(walking_state, stateSpace, 'rows');
+end
+
+[a, camera_row] = ismember(walking_state, cameras(:,1:2), 'rows');
+
+if a
+    cameracatch = cameras(camera_row, 3)/abs(current_coordinates(1) - walking_state(1));
+    P_nc = P_nc * (1 - cameracatch);
+end
+
+% walk south until wall, check if a camera
+walking_state = current_coordinates
+open = 1;
+%while we can still walk...
+while open
+   % walking south
+   walking_state = walking_state + [0,-1];
+   % check if we've hit a wall
+   [open, c] = ismember(walking_state, stateSpace, 'rows');
+end
+
+[a, camera_row] = ismember(walking_state, cameras(:,1:2), 'rows');
+
+if a
+    cameracatch = cameras(camera_row, 3)/abs(current_coordinates(2) - walking_state(2));
+    P_nc = P_nc * (1 - cameracatch);
+end
+
+
+% walk east until wall, check if a camera
+walking_state = current_coordinates
+open = 1;
+%while we can still walk...
+while open
+   % walking east
+   walking_state = walking_state + [1,0];
+   % check if we've hit a wall
+   [open, c] = ismember(walking_state, stateSpace, 'rows');
+end
+
+[a, camera_row] = ismember(walking_state, cameras(:,1:2), 'rows');
+
+if a
+    cameracatch = cameras(camera_row, 3)/abs(current_coordinates(1) - walking_state(1));
+    P_nc = P_nc * (1 - cameracatch);
+end
+
+
+
+p_caught = 1-P_nc ;
 
 end 
 
