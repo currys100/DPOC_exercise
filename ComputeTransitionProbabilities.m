@@ -81,72 +81,185 @@ pij = zeros( length(stateSpace), length(stateSpace), length(controlSpace) );
 
 % for each move action, determine if square is accessible. 
 
+%The state of the the gate
+[oooo,gate_state]=ismember(gate,stateSpace,'rows');
+
 for i = 1 : length(stateSpace)
     % for each row in stateSpace, determine coordinates of 4 possible moves.
     k = stateSpace(i,:) ; % get n,m map values for a given state
-    
-    
     
     % determine if adjacent squares are in the stateSpace. 
     
     %n_ind is the next state if you choose north
     [move_north, n_ind] = ismember([k(1), k(2)+1], stateSpace, 'rows');
-    if move_north   
-        pij(i, n_ind, 1) = 1 ;
-    else
+    if ~move_north   
         n_ind = i;
-        pij(i,n_ind,1) = 1 ;
     end 
     
+    P_nc = probabilityNotCaught(cameras, stateSpace, n_ind);
+%    [lake,n_ind]=ismember(,'rows');
+    pij(i,n_ind,1)=P_nc;
     
+    if (map(stateSpace(n_ind))<0)
+        pij(i,n_ind,1) = pij(i,n_ind,1)^4
+    end
+    
+    pij(i,gate_state,1)=pij(i,gate_state,1)+1-pij(i,n_ind,1);
+    
+    %-----------
     
     [move_south, s_ind] = ismember([k(1), k(2)-1], stateSpace, 'rows');
-    if move_south  
-        pij(i, s_ind, 3) = 1 ;
-    else
-        pij(i,i,3) = 1 ;
+    if ~move_south  
+        s_ind = i;
     end
+    
+    P_nc = probabilityNotCaught(cameras, stateSpace, s_ind);
+%    [lake,n_ind]=ismember(,'rows');
+    pij(i,s_ind,3)=P_nc;
+    
+    if (map(stateSpace(s_ind))<0)
+        pij(i,s_ind,3) = pij(i,s_ind,3)^4
+    end
+    
+    pij(i,gate_state,3)=pij(i,gate_state,3)+1-pij(i,s_ind,3);
+    
+    %------------
     
     [move_east, e_ind] = ismember([k(1)+1, k(2)], stateSpace, 'rows');
-    if move_east  
-        pij(i, e_ind, 4) = 1 ;
-    else
-        pij(i,i,4) = 1 ;
+    if ~move_east  
+        e_ind = i;
     end
+    
+    P_nc = probabilityNotCaught(cameras, stateSpace, e_ind);
+%    [lake,n_ind]=ismember(,'rows');
+    pij(i,e_ind,4)=P_nc;
+    
+    if (map(stateSpace(e_ind))<0)
+        pij(i,e_ind,4) = pij(i,e_ind,4)^4
+    end
+    
+    pij(i,gate_state,4)=pij(i,gate_state,4)+1-pij(i,e_ind,4) ;
+    
+    %------------
     
     [move_west, w_ind] = ismember([k(1)-1, k(2)], stateSpace, 'rows');
-    if move_west
-        pij(i, w_ind, 2) = 1 ;
-    else
-        pij(i,i,2) = 1 ;
+    if ~move_west
+        w_ind = i;
     end
     
-    pij(i, i, 5) = 1; % if we take a picture, we stay at the same state i. 
+    P_nc = probabilityNotCaught(cameras, stateSpace, w_ind);
+%    [lake,n_ind]=ismember(,'rows');
+    pij(i,w_ind,2)=P_nc;
     
-    % calculate p(caught) for each possible movement
+    if (map(stateSpace(w_ind))<0)
+        pij(i,w_ind,2) = pij(i,w_ind,2)^4
+    end
+    
+    pij(i,gate_state,2)=pij(i,gate_state,2)+1-pij(i,w_ind,2);
+    
+    pij(i, i, 5) = 1; % if we take a picture, we stay at the same state i.
+    
+    %----------- Camera action ---------  
+    distanceToMansion = distanceToMansion(mansion,stateSpace,i);
+    P_success = max(0.001, 0.5/distanceToMansion);
+    
+    P_nc = probabilityNotCaught(cameras, stateSpace, i);
+    
+    pij(i,i,5) = (1-P_success)*P_nc;
+    pij(i,gate_state,5) = pij(i,gate_state,5)+(1-P_success)*(1-P_nc);
     
 end 
 
+P = pij;
+
 end
 
-function los = lineOfSight(cameras, current_state) 
+function distance = distanceToMansion(mansion,stateSpace, current_state) 
 %{
-lineOfSight accepts cameras matrix and outputs a binary matrix that
-indicates which cameras are in line of sight of each of the 4 squares (n,
-s, e, w) around the current state. 
-
-returns a 4x2 matrix
- 
+Calculates the distance to mansion from a state
 %}
+distance = inf;
+
+current_coordinates = stateSpace(current_state,:);
+% walk north until wall, check if a camera
+walking_state = current_coordinates;
+open = 1;
+%while we can still walk...
+while open
+   % walking north
+   walking_state = walking_state + [0,1];
+   % check if we've hit a wall
+   [open, c] = ismember(walking_state, stateSpace, 'rows');
+end
+
+[a, camera_row] = ismember(walking_state, mansion, 'rows');
+
+if a
+    distance = min(distance, abs(current_coordinates(2) - walking_state(2)));
+end
+
+
+% walk west until wall, check if a camera
+walking_state = current_coordinates;
+open = 1;
+%while we can still walk...
+while open
+   % walking wests
+   walking_state = walking_state + [-1,0];
+   % check if we've hit a wall
+   [open, c] = ismember(walking_state, stateSpace, 'rows');
+end
+
+[a, camera_row] = ismember(walking_state, mansion, 'rows');
+
+if a
+    distance = min(distance, abs(current_coordinates(1) - walking_state(1)));
+end
+
+
+% walk south until wall, check if a camera
+walking_state = current_coordinates;
+open = 1;
+%while we can still walk...
+while open
+   % walking south
+   walking_state = walking_state + [0,-1];
+   % check if we've hit a wall
+   [open, c] = ismember(walking_state, stateSpace, 'rows');
+end
+
+[a, camera_row] = ismember(walking_state, mansion, 'rows');
+
+if a
+    distance = min(distance, abs(current_coordinates(2) - walking_state(2)));
+end
+
+
+% walk east until wall, check if a camera
+walking_state = current_coordinates;
+open = 1;
+%while we can still walk...
+while open
+   % walking east
+   walking_state = walking_state + [1,0];
+   % check if we've hit a wall
+   [open, c] = ismember(walking_state, stateSpace, 'rows');
+end
+
+[a, camera_row] = ismember(walking_state, mansion, 'rows');
+
+if a
+    distance = min(distance, abs(current_coordinates(1) - walking_state(1)));
+end
 
 
 
 end
 
-function p_caught = probabilityCaught(cameras, stateSpace, current_state) 
+function P_nc = probabilityNotCaught(cameras, stateSpace, current_state) 
 %{
     given the cameras, and the stateSpace (ie spaces cameras can see
-    through) calculate the probability of being caught in one timestep in a
+    through) calculate the probability of not being caught in one timestep in a
     given state
 %}
 
@@ -155,7 +268,7 @@ P_nc = 1;
 current_coordinates = stateSpace(current_state,:);
 
 % walk north until wall, check if a camera
-walking_state = current_coordinates
+walking_state = current_coordinates;
 open = 1;
 %while we can still walk...
 while open
@@ -173,7 +286,7 @@ if a
 end
 
 % walk west until wall, check if a camera
-walking_state = current_coordinates
+walking_state = current_coordinates;
 open = 1;
 %while we can still walk...
 while open
@@ -191,7 +304,7 @@ if a
 end
 
 % walk south until wall, check if a camera
-walking_state = current_coordinates
+walking_state = current_coordinates;
 open = 1;
 %while we can still walk...
 while open
@@ -210,7 +323,7 @@ end
 
 
 % walk east until wall, check if a camera
-walking_state = current_coordinates
+walking_state = current_coordinates;
 open = 1;
 %while we can still walk...
 while open
@@ -228,8 +341,6 @@ if a
 end
 
 
-
-p_caught = 1-P_nc ;
 
 end 
 
