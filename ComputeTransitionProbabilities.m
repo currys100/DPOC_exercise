@@ -85,31 +85,61 @@ for i = 1 : length(stateSpace)
     % for each row in stateSpace, determine coordinates of 4 possible moves.
     k = stateSpace(i,:) ; % get n,m map values for a given state
     
+    
+    
     % determine if adjacent squares are in the stateSpace. 
-    [move_north, n_ind] = ismember([k(1)-1, k(2)], stateSpace, 'rows');
+    [move_north, n_ind] = ismember([k(1), k(2)+1], stateSpace, 'rows');
     if move_north   
         pij(i, n_ind, 1) = 1 ;
     end 
     
-    [move_south, s_ind] = ismember([k(1)+1, k(2)], stateSpace, 'rows');
+    [move_south, s_ind] = ismember([k(1), k(2)-1], stateSpace, 'rows');
     if move_south  
         pij(i, s_ind, 3) = 1 ;
     end
     
-    [move_east, e_ind] = ismember([k(1), k(2)+1], stateSpace, 'rows');
+    [move_east, e_ind] = ismember([k(1)+1, k(2)], stateSpace, 'rows');
     if move_east  
         pij(i, e_ind, 4) = 1 ;
     end
     
-    [move_west, w_ind] = ismember([k(1), k(2)-1], stateSpace, 'rows');
+    [move_west, w_ind] = ismember([k(1)-1, k(2)], stateSpace, 'rows');
     if move_west
         pij(i, w_ind, 2) = 1 ;
     end
     
+    pij(i, i, 5) = 1; % if we take a picture, we stay at the same state i. 
+    
+    % calculate p(caught) for each possible movement
     
 end 
 
 end
+
+function los = lineOfSight(cameras, current_state) 
+%{
+lineOfSight accepts cameras matrix and outputs a binary matrix that
+indicates which cameras are in line of sight of each of the 4 squares (n,
+s, e, w) around the current state. 
+
+returns a 4x2 matrix
+ 
+%}
+
+
+
+end
+
+function p_caught = probabilityCaught(cameras) 
+%{
+
+
+%}
+
+p_caught = [] ;
+
+end 
+
 
 
 
