@@ -100,7 +100,7 @@ for i = 1 : length(stateSpace)
 %    [lake,n_ind]=ismember(,'rows');
     pij(i,n_ind,1)=P_nc;
     
-    if (map(stateSpace(n_ind))<0)
+    if (map(stateSpace(n_ind,2), stateSpace(n_ind,1))<0)
         pij(i,n_ind,1) = pij(i,n_ind,1)^4
     end
     
@@ -117,7 +117,7 @@ for i = 1 : length(stateSpace)
 %    [lake,n_ind]=ismember(,'rows');
     pij(i,s_ind,3)=P_nc;
     
-    if (map(stateSpace(s_ind))<0)
+    if (map(stateSpace(s_ind,2), stateSpace(s_ind,1))<0)
         pij(i,s_ind,3) = pij(i,s_ind,3)^4
     end
     
@@ -134,7 +134,7 @@ for i = 1 : length(stateSpace)
 %    [lake,n_ind]=ismember(,'rows');
     pij(i,e_ind,4)=P_nc;
     
-    if (map(stateSpace(e_ind))<0)
+    if (map(stateSpace(e_ind,2), stateSpace(e_ind,1))<0)
         pij(i,e_ind,4) = pij(i,e_ind,4)^4
     end
     
@@ -151,7 +151,7 @@ for i = 1 : length(stateSpace)
 %    [lake,n_ind]=ismember(,'rows');
     pij(i,w_ind,2)=P_nc;
     
-    if (map(stateSpace(w_ind))<0)
+    if (map(stateSpace(w_ind,2), stateSpace(w_ind,1))<0)
         pij(i,w_ind,2) = pij(i,w_ind,2)^4
     end
     
