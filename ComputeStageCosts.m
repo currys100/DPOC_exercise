@@ -46,7 +46,7 @@ function G = ComputeStageCosts( stateSpace, controlSpace, map, gate, mansion, ca
 
 % stage cost = ExpectedValue [P(i->t, 
 
-c_gate = 6 ; 
+c_gate = 7 ; 
 c_terminal = 1 ; 
 c_water = 4 ; 
 c_land = 1 ; 
@@ -105,7 +105,7 @@ for state = 1 : length(cost_space)
         p_not_caught = 1 - p_caught ; 
         cost_space(state, 3) = state_type(next_ind,1)*p_not_caught + p_caught*c_gate  ;
     else
-        cost_space(state, 1) = inf;
+        cost_space(state, 3) = inf;
     end
     %east
     [tf,next_ind]=ismember([stateSpace(state,1)+1, stateSpace(state,2)], stateSpace, 'rows');
@@ -114,7 +114,7 @@ for state = 1 : length(cost_space)
         p_not_caught = 1 - p_caught ; 
         cost_space(state, 4) = state_type(next_ind,1)*p_not_caught + p_caught*c_gate  ;
     else
-        cost_space(state, 1) = inf;
+        cost_space(state, 4) = inf;
     end
     %west
     [tf,next_ind]=ismember([stateSpace(state,1)-1, stateSpace(state,2)], stateSpace, 'rows');
@@ -123,7 +123,7 @@ for state = 1 : length(cost_space)
         p_not_caught = 1 - p_caught ; 
         cost_space(state, 2) = state_type(next_ind,1)*p_not_caught + p_caught*c_gate ;
     else
-        cost_space(state, 1) = inf;
+        cost_space(state, 2) = inf;
     end
     %click a pic
     p_caught = trans_probs(state, gate_state, 5);
@@ -132,9 +132,9 @@ for state = 1 : length(cost_space)
     cost_unsuccessful_pic = c_land*p_not_caught + p_caught*c_gate ;
     
     % cost of taking a pic
-    p_successful_pic = 0.5/ distanceToMansion(mansion,stateSpace, current_state) ;
+    p_successful_pic = 0.5/distanceToMansion(mansion,stateSpace, state) ;
     
-    cost_space(state, 5) = p_successful_pic*0 + (1 - p_successful_pic)*cost_unsuccessful_pic ;
+    cost_space(state, 5) = p_successful_pic*1 + (1 - p_successful_pic)*cost_unsuccessful_pic ;
         
     
     
@@ -143,28 +143,28 @@ end
 %cell to the north of gate
 [tf,gate_n]=ismember([stateSpace(gate_state,1), stateSpace(gate_state,2)+1], stateSpace, 'rows');
 if tf
-    p_not_caught = probabilityNotCaught(cameras, stateSpace, gate_n) ;
+    p_not_caught = probabilityNotCaught(cameras, stateSpace, gate_state) ;
     p_caught = 1 - p_not_caught ;
     cost_space(gate_n,3)=state_type(gate_state,1)*p_not_caught+p_caught*c_gate;
 end
 %cell to the south of gate
 [tf,gate_s]=ismember([stateSpace(gate_state,1), stateSpace(gate_state,2)-1], stateSpace, 'rows');
 if tf
-    p_not_caught = probabilityNotCaught(cameras, stateSpace, gate_s) ;
+    p_not_caught = probabilityNotCaught(cameras, stateSpace, gate_state) ;
     p_caught = 1 - p_not_caught ;
     cost_space(gate_s,1)=state_type(gate_state,1)*p_not_caught+p_caught*c_gate;
 end
 %cell to the west  of gate
 [tf,gate_w]=ismember([stateSpace(gate_state,1)-1, stateSpace(gate_state,2)], stateSpace, 'rows');
 if tf
-    p_not_caught = probabilityNotCaught(cameras, stateSpace, gate_w) ;
+    p_not_caught = probabilityNotCaught(cameras, stateSpace, gate_state) ;
     p_caught = 1 - p_not_caught ;
     cost_space(gate_w,4)=state_type(gate_state,1)*p_not_caught+p_caught*c_gate;
 end
 %cell to the east  of gate
 [tf,gate_e]=ismember([stateSpace(gate_state,1)+1, stateSpace(gate_state,2)], stateSpace, 'rows');
 if tf
-    p_not_caught = probabilityNotCaught(cameras, stateSpace, gate_e) ;
+    p_not_caught = probabilityNotCaught(cameras, stateSpace, gate_state) ;
     p_caught = 1 - p_not_caught ;
     cost_space(gate_e,2)=state_type(gate_state,1)*p_not_caught+p_caught*c_gate;
 end
