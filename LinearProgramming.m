@@ -31,5 +31,51 @@ function [ J_opt, u_opt_ind ] = LinearProgramming( P, G )
 
 % put your code here
 
+[m,n] = size(G);
+A = zeros(n*m,m);
+I = [eye(m); eye(m); eye(m); eye(m); eye(m)];
+for u = 1:5
+    for i = 1:m
+        if G(i,u) == inf
+            g(m*(u-1) + i,1) = 1;
+            I(m*(u-1)+i, :) = 0;
+                A( m*(u-1) + i, :) = 0;
+        else
+            for j = 1:m
+                A( m*(u-1) + i, j) = P(i,j,u);
+            end
+            g(m*(u-1) + i,1) = G(i,u);
+        end
+    end
+end
+    
+A= [I-A]
+g
+
+c = -1*ones(m,1);
+size(A)
+size(g)
+
+
+[J,val,a]= linprog(c, A, g)
+
+sum(g<0);
+
+J_opt = J;
+
+u_opt_ind = 5*ones(1,m);
+
+for i=1:m
+    slack= zeros(n,1);
+    for u= 1:n
+       slack(u) = g(m*(u-1) + i) - A(m*(u-1) + i,:)*J;
+    end
+    slack
+    [temp, opt_action] = min(slack);
+    opt_action
+    u_opt_ind(i) = opt_action;
+end
+
+
 end
 
