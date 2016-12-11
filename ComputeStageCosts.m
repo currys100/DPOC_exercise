@@ -132,7 +132,7 @@ for state = 1 : length(cost_space)
     cost_unsuccessful_pic = c_land*p_not_caught + p_caught*c_gate ;
     
     % cost of taking a pic
-    p_successful_pic = 0.5/distanceToMansion(mansion,stateSpace, state) ;
+    p_successful_pic = max(0.001, 0.5/distanceToMansion(mansion,stateSpace, state)) ;
     
     cost_space(state, 5) = p_successful_pic*1 + (1 - p_successful_pic)*cost_unsuccessful_pic ;
         
@@ -168,12 +168,14 @@ if tf
     p_caught = 1 - p_not_caught ;
     cost_space(gate_e,2)=state_type(gate_state,1)*p_not_caught+p_caught*c_gate;
 end
-%stand at agte cell and click a pic
+%stand at gate cell and click a pic
 
     p_not_caught = probabilityNotCaught(cameras, stateSpace, gate_state) ;
     p_caught = 1 - p_not_caught ;
-    cost_space(gate_state,5)=c_land*p_not_caught+p_caught*c_gate;
-
+    cost_unsuccessful_pic=c_land*p_not_caught+p_caught*c_gate;
+    p_successful_pic = max(0.001, 0.5/distanceToMansion(mansion,stateSpace, gate_state)) ;
+    
+    cost_space(gate_state, 5) = p_successful_pic*1 + (1 - p_successful_pic)*cost_unsuccessful_pic ;
 % for cells around the gate, if we apply a control action that moves us
 % into the gate cell, the cost should be 1 (not 6). 
 
