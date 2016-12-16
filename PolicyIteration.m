@@ -32,12 +32,12 @@ function [ J_opt, u_opt_ind ] = PolicyIteration( P, G )
 % put your code here
 
 
-iteration = 1;
+policy_iteration = 1;
 [m,n] = size(G);
 J_old = zeros(m);
 u_opt_ind = ones(m,1)*5; %literally just go north for everything
 
-while iteration < 100
+while policy_iteration < 1000
     
     
     u_old = u_opt_ind;
@@ -68,7 +68,7 @@ while iteration < 100
         break;
     end
     
-    iteration = iteration+1
+    policy_iteration = policy_iteration+1
 end
 
 J_opt = J;

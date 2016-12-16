@@ -31,11 +31,13 @@ function [ J_opt, u_opt_ind ] = ValueIteration( P, G )
 
 % put your code here
 
-iteration = 1;
-[m,n] = size(G);
-J_old = zeros(m);
+epsilon = 0.00000000001;
 
-while iteration < 1000
+value_iteration = 1
+[m,n] = size(G);
+J_old = zeros(m,1);
+
+while value_iteration < 10000
     J = ones(m,1)*inf;
     for i = 1:m
         for u = 1:n
@@ -46,9 +48,12 @@ while iteration < 1000
             J(i) = min(J(i), G(i,u) + sum);
         end
     end
+    J_diff = abs(J_old-J);
     J_old = J;
-    iteration = iteration+1
-    J(1)
+    if max(J_diff) < epsilon
+        break
+    end
+    value_iteration = value_iteration+1
 end
 
 u_opt_ind = zeros(m,1);
