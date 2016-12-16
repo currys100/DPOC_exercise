@@ -68,7 +68,7 @@ while policy_iteration < 1000
         break;
     end
     
-    policy_iteration = policy_iteration+1
+    policy_iteration = policy_iteration+1;
 end
 
 J_opt = J;

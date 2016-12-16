@@ -174,6 +174,7 @@ P = pij;
 
 end
 
+%% Supporting Functions - Distance to mansion
 function distance = distanceToMansion(mansion,stateSpace, current_state) 
 %{
 Calculates the distance to mansion from a state
@@ -255,7 +256,7 @@ end
 
 
 end
-
+%% Supporting functions - probability not caught
 function P_nc = probabilityNotCaught(cameras, stateSpace, current_state) 
 %{
     given the cameras, and the stateSpace (ie spaces cameras can see

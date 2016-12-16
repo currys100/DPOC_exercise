@@ -49,15 +49,10 @@ for u = 1:5
     end
 end
     
-A= [I-A]
-g
-
+A= [I-A];
 c = -1*ones(m,1);
-size(A)
-size(g)
 
-
-[J,val,a]= linprog(c, A, g)
+[J,val,a]= linprog(c, A, g);
 
 sum(g<0);
 
@@ -70,9 +65,7 @@ for i=1:m
     for u= 1:n
        slack(u) = g(m*(u-1) + i) - A(m*(u-1) + i,:)*J;
     end
-    slack
     [temp, opt_action] = min(slack);
-    opt_action
     u_opt_ind(i) = opt_action;
 end
 

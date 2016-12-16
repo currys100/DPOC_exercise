@@ -128,16 +128,22 @@ for state = 1 : length(cost_space)
     %click a pic
     p_caught = trans_probs(state, gate_state, 5);
     p_not_caught = 1 - p_caught ; 
-    % this cost_space 
-    cost_unsuccessful_pic = c_land*p_not_caught + p_caught*c_gate ;
     
     % cost of taking a pic
     p_successful_pic = max(0.001, 0.5/distanceToMansion(mansion,stateSpace, state)) ;
     
-    cost_space(state, 5) = p_successful_pic*1 + (1 - p_successful_pic)*cost_unsuccessful_pic ;
-        
+    % this cost_space 
+    %cost_unsuccessful_pic = c_land*p_not_caught + p_caught*c_gate ;
+    cost_space(state, 5) = c_land*p_not_caught + p_caught*c_gate ;%p_successful_pic*1 + cost_unsuccessful_pic ; %
     
-    
+% %% Test Print
+%     if(state==51)
+%         fprintf('p_caught = %f\n',p_caught);
+%         fprintf('p_not_caught = %f\n',p_not_caught);
+%         fprintf('p_successful_pic = %f\n',p_successful_pic);
+%         fprintf('p_unsuccessful_pic = %f\n',1-p_successful_pic);
+%     %else fprintf('no');
+%     end    
 end 
 
 %cell to the north of gate

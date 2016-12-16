@@ -33,7 +33,7 @@ function [ J_opt, u_opt_ind ] = ValueIteration( P, G )
 
 epsilon = 0.00000000001;
 
-value_iteration = 1
+value_iteration = 1;
 [m,n] = size(G);
 J_old = zeros(m,1);
 
@@ -53,7 +53,7 @@ while value_iteration < 10000
     if max(J_diff) < epsilon
         break
     end
-    value_iteration = value_iteration+1
+    value_iteration = value_iteration+1;
 end
 
 u_opt_ind = zeros(m,1);
